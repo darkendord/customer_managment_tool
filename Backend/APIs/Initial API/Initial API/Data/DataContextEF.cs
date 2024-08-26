@@ -38,15 +38,19 @@ namespace Initial_API.Data
                 .HasKey(e => e.IdEmployee);
 
             modelBuilder.Entity<CardModel>()
+                .ToTable("Card", "dbo")
                 .HasKey(e => e.IdCard);
 
             modelBuilder.Entity<NoteModel>()
+                .ToTable("Note", "dbo")
                 .HasKey(e => e.IdNote);
 
             modelBuilder.Entity<CustomerModel>()
+                .ToTable("Customer", "dbo")
                 .HasKey(e => e.IdCustomer);
 
             modelBuilder.Entity<EscalationModel>()
+                .ToTable("Escalation", "dbo")
                 .HasKey(e => e.IdEscalation);
         }
     }

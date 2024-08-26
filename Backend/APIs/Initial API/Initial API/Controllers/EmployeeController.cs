@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Initial_API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
         DataContextEF _entityFramework;
@@ -40,10 +40,10 @@ namespace Initial_API.Controllers
 
             if (employeeOnDb != null) 
             {
-                employeeOnDb.EmployeeLastName = employee.EmployeeLastName;
-                employeeOnDb.EmployeeName = employee.EmployeeName;
-                employeeOnDb.username = employee.username;
-                employeeOnDb.IsActive = employee.IsActive;
+                employeeOnDb.EmployeeLastName = employee.EmployeeLastName ?? employeeOnDb.EmployeeLastName;
+                employeeOnDb.EmployeeName = employee.EmployeeName ?? employeeOnDb.EmployeeName;
+                employeeOnDb.username = employee.username ?? employeeOnDb.username;
+                employeeOnDb.IsActive = employee.IsActive || employeeOnDb.IsActive;
                 if(_entityFramework.SaveChanges() > 0)
                 {
                     return Ok(employeeOnDb);
