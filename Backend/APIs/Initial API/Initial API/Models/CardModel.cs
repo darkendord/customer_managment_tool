@@ -1,6 +1,6 @@
 ﻿namespace Initial_API.Models
 {
-    public partial class Card
+    public partial class CardModel
     {
         public DateTime OpenDate { get; set; }
         public DateTime ExprirationDate { get; set; }

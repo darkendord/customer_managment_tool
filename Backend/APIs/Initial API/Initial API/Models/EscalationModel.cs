@@ -1,6 +1,6 @@
 ﻿namespace Initial_API.Models
 {
-    public partial class Escalation
+    public partial class EscalationModel
     {
         public DateTime CreationDate { get; set; }
         public string Departament { get; set; }

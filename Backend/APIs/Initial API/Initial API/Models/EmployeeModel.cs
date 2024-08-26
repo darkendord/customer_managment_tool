@@ -1,6 +1,6 @@
 ﻿namespace Initial_API.Models
 {
-    public partial class Employee
+    public partial class EmployeeModel
     {
         public string EmployeeName { get; set; }
         public string EmployeeLastName { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace Initial_API.Models
 {
-    public partial class Customer
+    public partial class CustomerModel
     {
         public string Name { get; set; }
         public string LastNamer { get; set; }
