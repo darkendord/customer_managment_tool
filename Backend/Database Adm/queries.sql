@@ -33,6 +33,7 @@ TypeOfCustomer VARCHAR(50)
 CREATE TABLE Card(
 IdCard INT PRIMARY KEY IDENTITY(1,1),
 NumberCard VARBINARY(16),
+CardNumberEncrypted VARBINARY(256)
 OpenDate DATETIME DEFAULT GETDATE(),
 ExprirationDate DATE,
 BillingCycle VARCHAR(50),
@@ -104,21 +105,23 @@ END
 --PROCEDURE CARD INSERT--
 
 CREATE PROCEDURE SP_CardInsert
-@NumberCard VARBINARY(16),
-@OpenDate DATETIME,
+@NumberCard NVARCHAR(50),
+@EncryptionKey NVARCHAR(32),
 @ExprirationDate DATE,
-@BillingCycle VARCHAR(50),
+@BillingCycle VARCHAR(50), 
 @Balance DECIMAL(18,2),
 @IsCardActive BIT,
 @IdCustomer INT
 AS
 BEGIN
-  DECLARE @CardEncrypt VARBINARY(256);
-  SET @CardEncrypt = ENCRYPTBYPASSPHRASE('root', @NumberCard);
+    
+    DECLARE @CardEncrypt VARBINARY(256);
+    SET @CardEncrypt = ENCRYPTBYPASSPHRASE(@EncryptionKey, @NumberCard);
 
-  INSERT INTO card(NumberCard,OpenDate,ExprirationDate,BillingCycle,Balance,IsCardActive,IdCustomer)
-  Values (@CardEncrypt,@OpenDate,@ExprirationDate,@BillingCycle,@Balance,@IsCardActive,@IdCustomer)
-END
+    
+    INSERT INTO Card (CardNumberEncrypted, ExprirationDate, BillingCycle, Balance, IsCardActive, IdCustomer)
+    VALUES (@CardEncrypt, @ExprirationDate, @BillingCycle, @Balance, @IsCardActive, @IdCustomer);
+END;
 
 --PROCEDURE NOTE INSERT--
 
@@ -160,19 +163,25 @@ end
 --PROCEDURE CARD OBTAIN--
 
 CREATE PROCEDURE SP_CardObtain
-@IdCustomer int
-
+ @IdCustomer INT
 AS
- BEGIN
-  SELECT IdCard, CONVERT(VARCHAR(16), DECRYPTBYPASSPHRASE('root',NumberCard ))AS
-   NumberCard, 
-   OpenDate,ExprirationDate,
-   BillingCycle,
-   Balance, 
-   IsCardActive,
-   IdCustomer 
-   FROM card WHERE IdCustomer = @IdCustomer;
-END
+BEGIN
+ SELECT 
+ IdCard, 
+CONVERT(VARCHAR(50), DECRYPTBYPASSPHRASE('crm', CardNumberEncrypted)) AS NumberCard, 
+OpenDate,
+ExprirationDate, 
+BillingCycle,
+Balance, 
+IsCardActive,
+IdCustomer 
+FROM Card
+WHERE IdCustomer = @IdCustomer;
+END;
+
+
+
+
 
 --PROCEDURE NOTE OBTAIN--
 
@@ -296,13 +305,13 @@ EXEC SP_CustomerInsert
 
 
 EXEC SP_CardInsert
-    @NumberCard = 5658881598455685,  
-    @OpenDate = '30/4/25',      
-    @ExprirationDate = '2025-06-28',  
-    @BillingCycle = 'Monthly',        
-    @Balance = 4000.50,               
-    @IsCardActive = 1,                
-    @IdCustomer = 2     
+    @NumberCard = '565565456565656', 
+    @EncryptionKey = 'crm', 
+    @ExprirationDate = '2030-08-27',
+    @BillingCycle = 'semanal', 
+    @Balance = 1200.00,
+    @IsCardActive = 1,
+    @IdCustomer = 2;   
 	
 
 EXEC SP_NoteInsert
