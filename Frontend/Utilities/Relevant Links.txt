@@ -1,0 +1,8 @@
+GitHub project repository: 
+https://github.com/darkendord/customer_managment_tool.git
+
+Miro app flow:
+https://miro.com/app/board/uXjVKo4ynIw=/
+
+Ninjamock app skeleton:
+https://ninjamock.com/s/ZQ84MKx
