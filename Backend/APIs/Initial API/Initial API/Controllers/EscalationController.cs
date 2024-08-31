@@ -8,23 +8,23 @@ namespace Initial_API.Controllers
     [Route("api/[controller]")]
     public class EscalationController : ControllerBase
     {
-        DataContextEF _entityFramework;
-        public EscalationController(IConfiguration config)
+        IEscalationRepository _escalationRepository;
+        public EscalationController(IEscalationRepository escalationRepository)
         {
-            _entityFramework = new DataContextEF(config);
+            _escalationRepository = escalationRepository;
         }
 
         [HttpGet("GetEscalations")]
         public IEnumerable<EscalationModel> GetEscalations()
         {
-            IEnumerable<EscalationModel> Escalations = _entityFramework.Escalations.ToList<EscalationModel>();
+            IEnumerable<EscalationModel> Escalations = _escalationRepository.GetEscalations();
             return Escalations;
         }
 
         [HttpGet("GetSingleEscalation/{idEscalation}")]
         public EscalationModel GetSingleEscalation(int idEscalation)
         {
-            EscalationModel? Escalation = _entityFramework.Escalations.Where(Escalation => Escalation.IdEscalation == idEscalation).FirstOrDefault();
+            EscalationModel? Escalation = _escalationRepository.GetSingleEscalation(idEscalation);
 
             if (Escalation != null)
             {
@@ -36,35 +36,20 @@ namespace Initial_API.Controllers
         [HttpPut("EditEscalation")]
         public IActionResult EditEscalation(EscalationModel escalation)
         {
-            EscalationModel? EscalationOnDb = _entityFramework.Escalations.Where(Escalation => Escalation.IdEscalation == escalation.IdEscalation).FirstOrDefault();
+            IActionResult EscalationOnDb = _escalationRepository.EditEscalation(escalation);
 
-            if (EscalationOnDb != null)
-            {
-                EscalationOnDb.EmployeeNumber = escalation.EmployeeNumber;
-                EscalationOnDb.Notes = escalation.Notes ?? EscalationOnDb.Notes;
-                EscalationOnDb.IdCustomer = escalation.IdCustomer;
-
-                if (_entityFramework.SaveChanges() > 0)
+                if (_escalationRepository.SaveChanges())
                 {
                     return Ok(EscalationOnDb);
                 }
-            }
             throw new Exception("Failed to Update or edit Escalation or was not found");
         }
 
         [HttpPost("PostEscalation")]
-        public IActionResult AddEscalation(EscalationModel Escalation)
+        public IActionResult AddEscalation(EscalationModel escalation)
         {
-            EscalationModel EscalationToDb = new EscalationModel();
-
-            EscalationToDb.Notes = Escalation.Notes;
-            EscalationToDb.IdCustomer = Escalation.IdCustomer;
-            EscalationToDb.EmployeeNumber = Escalation.EmployeeNumber;
-            EscalationToDb.CreationDate = DateTime.Now;
-            EscalationToDb.Departament = Escalation.Departament;
-
-            _entityFramework.Add(EscalationToDb);
-            if (_entityFramework.SaveChanges() > 0)
+            IActionResult EscalationToDb =  _escalationRepository.AddEscalation(escalation);
+            if (_escalationRepository.SaveChanges())
             {
                 return Ok(EscalationToDb);
             }
@@ -74,16 +59,11 @@ namespace Initial_API.Controllers
         [HttpDelete("DeleteEscalation/{idEscalation}")]
         public IActionResult DeleteEscalation(int idEscalation)
         {
-            EscalationModel? EscalationOnDb = _entityFramework.Escalations.Where(Escalation => Escalation.IdEscalation == idEscalation).FirstOrDefault<EscalationModel>();
-
-            if (EscalationOnDb != null)
-            {
-                _entityFramework.Escalations.Remove(EscalationOnDb);
-                if (_entityFramework.SaveChanges() > 0)
+            IActionResult EscalationOnDb = _escalationRepository.DeleteEscalation(idEscalation);
+                if (_escalationRepository.SaveChanges())
                 {
                     return Ok(EscalationOnDb);
                 }
-            }
             throw new Exception("Failed to Update or delete Escalation");
 
         }

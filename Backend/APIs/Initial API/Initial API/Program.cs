@@ -32,6 +32,9 @@ builder.Services.AddCors((options) =>
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
+builder.Services.AddScoped<IEscalationRepository, EscalationRepository>();
 
 var app = builder.Build();
 

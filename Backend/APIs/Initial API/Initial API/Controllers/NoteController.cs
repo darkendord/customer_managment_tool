@@ -8,23 +8,23 @@ namespace Initial_API.Controllers
     [Route("api/[controller]")]
     public class NoteController : ControllerBase
     {
-        DataContextEF _entityFramework;
-        public NoteController(IConfiguration config)
+        INoteRepository _noteRepository;
+        public NoteController(INoteRepository noteRepository)
         {
-            _entityFramework = new DataContextEF(config);
+            _noteRepository = noteRepository;
         }
 
         [HttpGet("GetNotes")]
         public IEnumerable<NoteModel> GetNotes()
         {
-            IEnumerable<NoteModel> Notes = _entityFramework.Notes.ToList<NoteModel>();
+            IEnumerable<NoteModel> Notes = _noteRepository.GetNotes();
             return Notes;
         }
 
         [HttpGet("GetSingleNote/{idNote}")]
         public NoteModel GetSingleNote(int idNote)
         {
-            NoteModel? Note = _entityFramework.Notes.Where(Note => Note.IdNote == idNote).FirstOrDefault();
+            NoteModel? Note = _noteRepository.GetSingleNote(idNote);
 
             if (Note != null)
             {
@@ -36,36 +36,21 @@ namespace Initial_API.Controllers
         [HttpPut("EditNote")]
         public IActionResult EditNote(NoteModel note)
         {
-            NoteModel? NoteOnDb = _entityFramework.Notes.Where(Note => Note.IdNote == note.IdNote).FirstOrDefault();
+            IActionResult NoteOnDb = _noteRepository.EditNote(note);
 
-            if (NoteOnDb != null)
-            {
-                NoteOnDb.CreatedBy = note.CreatedBy ?? NoteOnDb.CreatedBy;
-                NoteOnDb.Detail = note.Detail ?? NoteOnDb.Detail;
-                NoteOnDb.IdCustomer = NoteOnDb.IdCustomer;
-                NoteOnDb.EmployeeNumber = NoteOnDb.EmployeeNumber;
-
-                if (_entityFramework.SaveChanges() > 0)
+                if (_noteRepository.SaveChanges())
                 {
                     return Ok(NoteOnDb);
                 }
-            }
             throw new Exception("Failed to Update or edit Note or was not found");
         }
 
         [HttpPost("PostNote")]
         public IActionResult AddNote(NoteModel note)
         {
-            NoteModel NoteToDb = new NoteModel();
+            IActionResult NoteToDb = _noteRepository.AddNote(note);
 
-            NoteToDb.CreatedBy = note.CreatedBy;
-            NoteToDb.Detail = note.Detail;
-            NoteToDb.IdCustomer = note.IdCustomer;
-            NoteToDb.EmployeeNumber = note.EmployeeNumber;
-            NoteToDb.CreationDate = DateTime.Now;
-
-            _entityFramework.Add(NoteToDb);
-            if (_entityFramework.SaveChanges() > 0)
+            if (_noteRepository.SaveChanges())
             {
                 return Ok(NoteToDb);
             }
@@ -75,16 +60,12 @@ namespace Initial_API.Controllers
         [HttpDelete("DeleteNote/{idNote}")]
         public IActionResult DeleteNote(int idNote)
         {
-            NoteModel? NoteOnDb = _entityFramework.Notes.Where(Note => Note.IdNote == idNote).FirstOrDefault<NoteModel>();
+            IActionResult noteOnDb = _noteRepository.DeleteNote(idNote);
 
-            if (NoteOnDb != null)
-            {
-                _entityFramework.Notes.Remove(NoteOnDb);
-                if (_entityFramework.SaveChanges() > 0)
+                if (_noteRepository.SaveChanges())
                 {
-                    return Ok(NoteOnDb);
+                    return Ok(noteOnDb);
                 }
-            }
             throw new Exception("Failed to Update or delete Note");
 
         }
