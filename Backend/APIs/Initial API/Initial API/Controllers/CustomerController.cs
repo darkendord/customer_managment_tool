@@ -8,24 +8,23 @@ namespace Initial_API.Controllers
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
-        DataContextEF _entityFramework;
-        public CustomerController(IConfiguration config)
+        ICustomerRepository _customerRepository;
+        public CustomerController(ICustomerRepository customerRepository)
         {
-            _entityFramework = new DataContextEF(config);
+            _customerRepository = customerRepository;
         }
 
         [HttpGet("GetCustomers")]
         public IEnumerable<CustomerModel> GetCustomers()
         {
-            IEnumerable<CustomerModel> Customers = _entityFramework.Customers.ToList<CustomerModel>();
+            IEnumerable<CustomerModel> Customers = _customerRepository.GetCustomers();
             return Customers;
         }
 
         [HttpGet("GetSingleCustomer/{identificationNumber}")]
         public CustomerModel GetSingleCustomer(int identificationNumber)
         {
-            CustomerModel? Customer = _entityFramework.Customers.Where(customer => customer.IdentificationNumber == identificationNumber).FirstOrDefault();
-
+            CustomerModel Customer = _customerRepository.GetSingleCustomer(identificationNumber);
             if (Customer != null)
             {
                 return Customer;
@@ -36,21 +35,11 @@ namespace Initial_API.Controllers
         [HttpPut("EditCustomer")]
         public IActionResult EditCustomer(CustomerModel customer)
         {
-            CustomerModel? CustomerOnDb = _entityFramework.Customers.Where(customer => customer.IdentificationNumber == customer.IdentificationNumber).FirstOrDefault();
+            CustomerModel CustomerOnDb = _customerRepository.EditCustomer(customer);
 
-            if (CustomerOnDb != null)
+          if (_customerRepository.SaveChanges())
             {
-                CustomerOnDb.Name = customer.Name ?? CustomerOnDb.Name ;
-                CustomerOnDb.LastNamer = customer.LastNamer ?? CustomerOnDb.LastNamer ;
-                CustomerOnDb.Email = customer.Email ?? CustomerOnDb.Email ;
-                CustomerOnDb.Phone = customer.Phone ?? CustomerOnDb.Phone ;
-                CustomerOnDb.Adress = customer.Adress ?? CustomerOnDb.Adress ;
-                CustomerOnDb.TypeOfCustomer = customer.TypeOfCustomer ?? CustomerOnDb.TypeOfCustomer ;
-                CustomerOnDb.IsCustomerActicve = customer.IsCustomerActicve || CustomerOnDb.IsCustomerActicve;
-                if (_entityFramework.SaveChanges() > 0)
-                {
-                    return Ok(CustomerOnDb);
-                }
+                return Ok(CustomerOnDb);
             }
             throw new Exception("Failed to Update or edit Customer or was not found");
         }
@@ -58,21 +47,10 @@ namespace Initial_API.Controllers
         [HttpPost("PostCustomer")]
         public IActionResult AddCustomer(CustomerModel customer)
         {
-            CustomerModel CustomerToDb = new CustomerModel();
-
-
-            CustomerToDb.Name = customer.Name;
-            CustomerToDb.LastNamer = customer.LastNamer;
-            CustomerToDb.Email = customer.Email;
-            CustomerToDb.Phone = customer.Phone;
-            CustomerToDb.Adress = customer.Adress;
-            CustomerToDb.TypeOfCustomer = customer.TypeOfCustomer;
-            CustomerToDb.IsCustomerActicve = customer.IsCustomerActicve;
-            CustomerToDb.IdentificationNumber = customer.IdentificationNumber;
-            _entityFramework.Add(CustomerToDb);
-            if (_entityFramework.SaveChanges() > 0)
+            IActionResult customerToDb = _customerRepository.AddCustomer(customer);
+            if (_customerRepository.SaveChanges())
             {
-                return Ok(CustomerToDb);
+                return Ok(customerToDb);
             }
             throw new Exception("Failed to Add Customer");
         }
@@ -80,18 +58,12 @@ namespace Initial_API.Controllers
         [HttpDelete("DeleteCustomer/{identificationNumber}")]
         public IActionResult DeleteCustomer(int identificationNumber)
         {
-            CustomerModel? CustomerOnDb = _entityFramework.Customers.Where(customer => customer.IdentificationNumber == identificationNumber).FirstOrDefault<CustomerModel>();
-
-            if (CustomerOnDb != null)
+            IActionResult customerOnDb = _customerRepository.DeleteCustomer(identificationNumber);
+            if (customerOnDb != null)
             {
-                _entityFramework.Customers.Remove(CustomerOnDb);
-                if (_entityFramework.SaveChanges() > 0)
-                {
-                    return Ok(CustomerOnDb);
-                }
+                return Ok(customerOnDb);
             }
             throw new Exception("Failed to Update or delete Customer");
-
         }
     }
 }

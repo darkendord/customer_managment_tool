@@ -1,3 +1,5 @@
+using Initial_API.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -27,6 +29,12 @@ builder.Services.AddCors((options) =>
         .AllowAnyMethod();
     });
 });
+
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
+builder.Services.AddScoped<IEscalationRepository, EscalationRepository>();
 
 var app = builder.Build();
 

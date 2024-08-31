@@ -8,23 +8,23 @@ namespace Initial_API.Controllers
     [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
-        DataContextEF _entityFramework;
-        public EmployeeController(IConfiguration config) 
+        IEmployeeRepository _employeeRepository;
+        public EmployeeController(IEmployeeRepository employeeRepository) 
         { 
-            _entityFramework = new DataContextEF(config);
+            _employeeRepository = employeeRepository;
         }
 
         [HttpGet("GetEmployees")]
         public IEnumerable<EmployeeModel> GetEmployees()
         {
-            IEnumerable<EmployeeModel> employees = _entityFramework.Employees.ToList<EmployeeModel>();
+            IEnumerable<EmployeeModel> employees = _employeeRepository.GetEmployees();
             return employees;
         }
 
         [HttpGet("GetSingleEmployee/{employeeNumber}")]
         public EmployeeModel GetSingleEmployee(int employeeNumber)
         {
-            EmployeeModel? employee = _entityFramework.Employees.Where(emp => emp.EmployeeNumber == employeeNumber).FirstOrDefault();
+            EmployeeModel employee = _employeeRepository.GetSingleEmployee(employeeNumber);
 
             if (employee != null)
             {
@@ -36,18 +36,10 @@ namespace Initial_API.Controllers
         [HttpPut("EditEmployee")]
         public IActionResult EditEmployee(EmployeeModel employee)
         {
-                EmployeeModel? employeeOnDb = _entityFramework.Employees.Where(emp => emp.EmployeeNumber == employee.EmployeeNumber).FirstOrDefault();
-
-            if (employeeOnDb != null) 
+            EmployeeModel employeeOnDb = _employeeRepository.EditEmployee(employee);
+            if(_employeeRepository.SaveChanges())
             {
-                employeeOnDb.EmployeeLastName = employee.EmployeeLastName ?? employeeOnDb.EmployeeLastName;
-                employeeOnDb.EmployeeName = employee.EmployeeName ?? employeeOnDb.EmployeeName;
-                employeeOnDb.username = employee.username ?? employeeOnDb.username;
-                employeeOnDb.IsActive = employee.IsActive || employeeOnDb.IsActive;
-                if(_entityFramework.SaveChanges() > 0)
-                {
-                    return Ok(employeeOnDb);
-                }
+                return Ok(employeeOnDb);
             }
             throw new Exception("Failed to Update or edit Employee or was not found");
         }
@@ -55,16 +47,9 @@ namespace Initial_API.Controllers
         [HttpPost("PostEmployee")]
         public IActionResult AddEmployee(EmployeeModel employee)
         {
-            EmployeeModel employeeToDb = new EmployeeModel();
+            EmployeeModel employeeToDb = _employeeRepository.AddEmployee(employee);
 
-            
-                employeeToDb.EmployeeLastName = employee.EmployeeLastName;
-                employeeToDb.EmployeeName = employee.EmployeeName;
-                employeeToDb.EmployeeNumber = employee.EmployeeNumber;
-                employeeToDb.username = employee.username;
-                employeeToDb.IsActive = employee.IsActive;
-                _entityFramework.Add(employeeToDb);
-                if (_entityFramework.SaveChanges() > 0)
+                if (_employeeRepository.SaveChanges())
                 {
                     return Ok(employeeToDb);
                 }
@@ -74,12 +59,12 @@ namespace Initial_API.Controllers
         [HttpDelete("DeleteEmployee/{employeeNumber}")]
         public IActionResult DeleteEmployee(int employeeNumber)
         {
-            EmployeeModel? employeeOnDb = _entityFramework.Employees.Where(emp => emp.EmployeeNumber == employeeNumber).FirstOrDefault<EmployeeModel>();
+            EmployeeModel employeeOnDb = (EmployeeModel)_employeeRepository.DeleteEmployee(employeeNumber);
 
             if (employeeOnDb != null)
             {
-                _entityFramework.Employees.Remove(employeeOnDb);
-                if (_entityFramework.SaveChanges() > 0)
+                _employeeRepository.RemoveEntity<EmployeeModel>(employeeOnDb);
+                if (_employeeRepository.SaveChanges())
                 {
                     return Ok(employeeOnDb);
                 }
