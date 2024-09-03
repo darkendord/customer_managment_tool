@@ -3,6 +3,7 @@
     public partial class EmployeeModel
     {
         public string? EmployeeName { get; set; }
+        public string? Email{ get; set; }
         public string? EmployeeLastName { get; set; }
         public int IdEmployee { get; set; }
         public string? username { get; set; }
