@@ -53,6 +53,7 @@ namespace Initial_API.Data
                 employeeOnDb.EmployeeName = employee.EmployeeName ?? employeeOnDb.EmployeeName;
                 employeeOnDb.username = employee.username ?? employeeOnDb.username;
                 employeeOnDb.IsActive = employee.IsActive || employeeOnDb.IsActive;
+                employeeOnDb.Email = employee.Email ?? employeeOnDb.Email;
                 if (SaveChanges())
                 {
                     return employeeOnDb;
@@ -70,6 +71,7 @@ namespace Initial_API.Data
             employeeToDb.EmployeeNumber = employee.EmployeeNumber;
             employeeToDb.username = employee.username;
             employeeToDb.IsActive = employee.IsActive;
+            employeeToDb.Email = employee.Email;
 
             AddEntity<EmployeeModel>(employeeToDb);
             if (SaveChanges())

@@ -35,6 +35,7 @@ builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
 builder.Services.AddScoped<IEscalationRepository, EscalationRepository>();
+builder.Services.AddScoped<DataContextDapper>();
 
 var app = builder.Build();
 
