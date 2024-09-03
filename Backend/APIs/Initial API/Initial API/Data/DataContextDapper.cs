@@ -11,18 +11,15 @@ namespace Initial_API.Data
         {
             _configuration = configuration;
         }
-
         private IDbConnection CreateConnection()
         {
             return new SqlConnection(_configuration.GetConnectionString("DefaultConnectionString"));
         }
-
         public IEnumerable<T> LoadData<T>(string sql)
         {
             IDbConnection dbConnection = CreateConnection();
             return dbConnection.Query<T>(sql);
         }
-
         public T LoadDataSingle<T>(string sql)
         {
             IDbConnection dbConnection = CreateConnection();
@@ -58,6 +55,5 @@ namespace Initial_API.Data
             
             return rowsAffected > 0;
         }
-
     }
 }

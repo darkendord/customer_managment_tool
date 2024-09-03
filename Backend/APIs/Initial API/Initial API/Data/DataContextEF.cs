@@ -26,8 +26,6 @@ namespace Initial_API.Data
                     optionsBuilder => optionsBuilder.EnableRetryOnFailure());
             }
         }
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //EF wil know which table will be affected by its primary key
